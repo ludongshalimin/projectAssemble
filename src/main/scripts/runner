@@ -1,0 +1,135 @@
+#!/usr/bin/env python
+##-*-coding: utf-8;-*-##
+import os
+import signal
+import sys
+import logging
+import subprocess
+
+'''
+	run.bsh --> runner --> spark-submit
+'''
+
+def setup_logging(format='%(asctime)-15s %(levelname)s %(message)s'):
+	logging.basicConfig(format=format,level=logging.DEBUG)
+
+def setup_receiving_pdeath(signum):
+	import prctl
+	prctl.set_pdeathsig(signum)
+
+def setup_signal_handler(pdeath_sig,sig2raise,processes):
+	def handler(signum,unused_frame):
+		kill_yarn_app()
+		os.kill(processes,sig2raise)
+	signal.signal(pdeath_sig,handler)
+
+	#交互式调试时，有可能会直接ctrl+c
+	signal.signal(signal.SIGINT,handler)
+	#交互调试时，可能掉线
+	signal.signal(signal.SIGHUP,handler)
+
+def kill_yarn_app():
+	global app_id
+	
+	def locate_yarn():
+
+		yarn = os.getenv('YARN')
+		if yarn is not None:
+			return yarn
+		hadoop_home = os.getenv('HADOOP_HOME')
+		if hadoop_home is not None:
+			return P.join(P.realpath(hadoop_home),'bin','yarn')
+		return '/app/hadoop-client/base/bin/yarn'
+	
+	def locate_kinit():
+
+		kinit = os.getenv('KINIT')
+		if kinit is not None:
+			return kinit
+		return '/usr/bin/kinit'
+	def locate_keytab():
+	
+		file = os.getenv('KEYTAB_FILE')
+		if file is None:
+			raise Execption('keytab file not found')
+		user == os.getenv('KEYTAB_USER')
+		if user is None:
+			raise Exception('keytab user not found')
+		return (file,user)
+        
+
+	if app_id is None:
+		raise Exception('remote yarn app not found')
+	init = locate_kinit()
+	file,user = locate_keytab()
+	logging.info('try to init kerberos auth:kinit=%s,file=%s,user=%s',init,file,user)
+	subprocess.call([init,'-kt',file,user])
+
+	yarn = locate_yarn()
+	logging.info('try to kill yarn app %s,using %s',app_id,yarn)
+	subprocess.call([yarn,'application','-kill',app_id])
+
+def run_program(cmd):
+	import shlex
+	args = shlex.split(cmd)
+	proc = subprocess.Popen(args,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+
+	while True:
+		line = proc.stdout.readline()
+		if not line:
+			break
+		sys.stderr.write(line)
+		parse_program_output(line)
+	rc = proc.wait()
+	return rc
+
+def parse_program_output(line):
+	global app_id
+	global app_id_pattern
+	
+	
+	if app_id is not None:
+		return
+	
+
+	m = app_id_pattern.match(line)
+	if m is None:
+		return
+	app_id = m.group(1)
+
+
+if __name__=="__main__":
+
+	import re
+	assert len(sys.argv) == 2,'usage:runner<cmd string>'
+	
+	cmd = sys.argv[1]
+	
+	sig2catch = signal.SIGUSR1
+	sig2raise = signal.SIGTERM
+
+	app_id = None
+	
+	app_id_pattern = re.compile(r'^.*? Application report for (application_\d+?_\d+?) ')
+
+	setup_logging()
+	setup_receiving_pdeath(sig2catch)
+	logging.info('parent exit event will be passed as signal: %s',sig2catch)
+
+	processes = os.getpgrp()
+	setup_signal_handler(sig2catch,sig2raise,processes)
+	logging.info('parent exit event handler installed ,to kill processes pgrp=%d',-processes)
+	logging.info('when run tests interactive shell,we handle SIGINT,SIGHUP too')
+
+	logging.info('try to run program: %s',cmd)
+
+	ret = run_program(cmd)
+	logging.info('return code = %s',ret)
+
+	exit(ret)
+	
+
+
+
+
+

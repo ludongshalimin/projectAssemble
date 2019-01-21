@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <relativePath>3deps.xml</relativePath>
+        <groupId>com.bupt</groupId>
+        <artifactId>deps</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <groupId>com.bupt</groupId>
+    <artifactId>resources</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <build>
+        <sourceDirectory>src/main/scala</sourceDirectory>
+        <testSourceDirectory>src/test/scala</testSourceDirectory>
+
+        <resources>
+            <resource>
+                <directory>src/main/scripts</directory>
+                <targetPath>${project.build.directory}/scripts</targetPath>
+                <filtering>false</filtering>
+
+                <excludes>
+                    <exclude>config.properties</exclude>
+                    <exclude>log4j.properties</exclude>
+                </excludes>
+            </resource>
+
+            <resource>
+                <directory>src/main/resources</directory>
+                <targetPath>${project.build.directory}/resources</targetPath>
+                <!--表示可以用pom中的配置值替换resources目录下配置文件中的值-->
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <targetPath>${project.build.directory}/conf-test</targetPath>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+    </build>
+
+</project>

@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+##-*-coding: utf-8;mode: shell-script;-*-##
+
+set -e
+APP_HOME="$(cd $(dirname $0)/..;pwd -P)"
+cd $APP_HOME/run
+
+set -a
+source "$APP_HOME/bin/run.env"
+set +a
+if [[ $# -eq 2 ]]; then
+	dt=$(date -d "$1" +%Y%m%d)
+	type=$2
+	logging "base date to process: $dt"
+	logging "base date type to process: $type"
+elif [[ $# -eq 3 ]]; then
+	dt=$(date -d "$1" +%Y%m%d)
+	type=$2
+	keyStr=$3
+	logging "base date to process: $dt"
+	logging "base date type to process: $type"
+else
+	logging "Usage: run.sh <date> <type>"
+	exit 1
+fi
+
+case $type in
+	"helloWorld" )
+	APP_CLS=HelloWorld
+		;;
+	"SparkPiMain" )
+	APP_CLS=SparkPiMain
+		;;
+	"convertFormat" )
+	APP_CLS=ConvertFormatMain
+		;;
+esac
+
+FILE_LIST=$(find $APP_HOME/conf -type f | paste -sd',')
+cmd="$SPARK_HOME/bin/spark-submit"
+#cmd="$cmd --files $FILE_LIST"
+cmd="$cmd --conf spark.yarn.executor.memoryOverhead=2014"
+cmd="$cmd --conf spark.port.maxRetries=30"
+cmd="$cmd --conf spark.yarn.submit.waitAppCompletion=true"
+#cmd="$cmd --queue $QUEUE"
+cmd="$cmd --num-executors $EXECUTORS --executor-cores $EXECUTOR_CORES --executor-memory $EXECUTOR_MEM"
+cmd="$cmd --master $MASTER_URL --deploy-mode $DEPLOY_MODE"
+#cmd="$cmd --principal $KEYTAB_USER --keytab $KEYTAB_FILE"
+cmd="$cmd --name bupt-$type-$dt --class com.bupt.$APP_CLS $APP_HOME/lib/$APP_JAR"
+#cmd="$cmd -d $dt -t $type"
+#if [[ -n $keyStr ]]; then
+	#cmd="$cmd -k $keyStr"
+#fi
+logging "command to execute: $cmd"
+echo "${APP_HOME}/bin/runner"
+$APP_HOME/bin/runner "$cmd"
+logging "all ok"
+
+
+
+
+
+
+
+
+
+

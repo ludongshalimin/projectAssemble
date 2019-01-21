@@ -1,0 +1,10 @@
+#!/bin/bash
+##-*-coding: utf-8;mode: shell-script;-*-##
+
+set -e
+APP_HOME="$(cd $(dirname $0)/..;pwd -P)"
+LOG_PATH=/logs/bupt/$2
+mkdir -p $LOG_PATH/$1
+LOG_FILE=$LOG_PATH/$1/$2_$1_`date +%Y%m%d%H%M%S`
+$APP_HOME/bin/cmd.bsh $* 2>&1 | tee $LOG_FILE
+exit ${PIPSTATUS[0]}

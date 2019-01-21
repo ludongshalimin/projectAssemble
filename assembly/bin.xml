@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+    <id>bin</id>  <!--添加到生成文件名称的后缀符-->
+
+    <!--指定打包格式，zip,tar,tar.gz,jar,dir,war-->
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+
+    <fileSets>
+        <!--指定打包的目录，点对点打包，将某一个目录打包到某个目录下，可以选择排除某些目录和包含某些目录-->
+        <fileSet>
+            <directory>${project.build.directory}</directory>  <!--依赖目录-->
+            <outputDirectory>lib</outputDirectory>    <!--输出目录-->
+            <includes>
+                <include>${project.artifactId}*.jar</include> <!--包括文件-->
+            </includes>
+        </fileSet>
+
+        <fileSet>
+            <directory>${project.build.directory}/scripts</directory>
+            <outputDirectory>bin</outputDirectory>
+            <includes>
+                <include>*.bsh</include>
+            </includes>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0755</fileMode><!--设置文件unix属性，文件所有者，同组用户，其他用户-->
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/resources</directory>
+            <outputDirectory>conf</outputDirectory>
+            <includes>
+                <include>*.*</include>
+            </includes>
+            <fileMode>0644</fileMode>  <!--4:可读，2：可写，1：可执行-->
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}</directory>
+            <outputDirectory>doc</outputDirectory>
+            <includes>
+                <include>LICENCE*</include>
+                <include>README*</include>
+                <include>RELEASES*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>run</outputDirectory>
+            <excludes>
+                <exclude>*/**</exclude>
+            </excludes>
+            <directoryMode>775</directoryMode>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/test-resources</directory>
+            <outputDirectory>tests/conf</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${project.basedir}</directory>
+            <outputDirectory>src</outputDirectory>
+            <includes>
+                <include>**/assembly/**</include>
+                <include>**/src/**</include>
+                <include>pom.xml</include>
+                <include>*.md</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+
+    <files>  <!--相当于拷贝文件了-->
+        <file>
+            <source>${project.build.directory}/scripts/run.env</source>
+            <outputDirectory>bin</outputDirectory>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0644</fileMode>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>${project.build.directory}/scripts/runner</source>
+            <outputDirectory>bin</outputDirectory>
+            <fileMode>0755</fileMode>
+            <filtered>false</filtered>
+        </file>
+
+        <!--<file>-->
+            <!--<source>${project.build.directory}/scripts/librunner.so</source>-->
+            <!--<outputDirectory>bin</outputDirectory>-->
+            <!--<fileMode>0644</fileMode>-->
+            <!--<filtered>false</filtered>-->
+        <!--</file>-->
+
+        <file>
+            <source>${project.build.directory}/scripts/prctl.so</source>
+            <outputDirectory>bin</outputDirectory>
+            <fileMode>0644</fileMode>
+            <filtered>false</filtered>
+        </file>
+        <file>
+            <source>${project.build.directory}/scripts/_prctl.so</source>
+            <outputDirectory>bin</outputDirectory>
+            <fileMode>0644</fileMode>
+            <filtered>false</filtered>
+        </file>
+    </files>
+</assembly>
+

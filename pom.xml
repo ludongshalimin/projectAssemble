@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <relativePath>pom/5plgs.xml</relativePath>
+        <groupId>com.bupt</groupId>
+        <artifactId>plugins</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+
+    <groupId>com.bupt</groupId>
+    <artifactId>projectdemon</artifactId>
+    <version>1.0.0</version>
+
+    <profiles>
+        <!--设置开发环境-->
+        <profile>
+            <id>dev</id>
+            <activation>  <!--设置默认激活这个配置-->
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <!--设置需要编译的动态环境参数-->
+            <properties>
+                <redis.host>197.3.128.82</redis.host>
+                <redis.port>6789</redis.port>
+                <app.build.profile.id>dev</app.build.profile.id>
+                <spark.home>/app/hadoop-client4718/spark-2.0.2-bin-hadoop2.4</spark.home>
+                <spark.input.partition>10</spark.input.partition>
+                <spark.conf.spark.default.paralleism>10</spark.conf.spark.default.paralleism>
+            </properties>
+        </profile>
+
+        <!--版本测试环境-->
+        <profile>
+            <id>uat</id>
+            <properties>
+                <redis.host>197.3.128.82</redis.host>
+                <redis.port>6789</redis.port>
+                <app.build.profile.id>uat</app.build.profile.id>
+                <spark.home>/mnt/hadoopDisk/hadooplearn/app/spark-2.2.0-bin-2.6.0-cdh5.7.0</spark.home>
+                <spark.input.partition>10</spark.input.partition>
+                <spark.conf.spark.default.paralleism>10</spark.conf.spark.default.paralleism>
+            </properties>
+        </profile>
+        <!--生产环境-->
+        <profile>
+            <id>prd</id>
+            <properties>
+                <redis.host>197.3.128.82</redis.host>
+                <redis.port>6789</redis.port>
+                <app.build.profile.id>prd</app.build.profile.id>
+                <spark.home>/app/hadoop-client4718/spark-2.0.2-bin-hadoop2.4</spark.home>
+                <spark.input.partition>10</spark.input.partition>
+                <spark.conf.spark.default.paralleism>10</spark.conf.spark.default.paralleism>
+            </properties>
+        </profile>
+    </profiles>
+
+</project>
